@@ -1,26 +1,41 @@
-# Least significant bit method used for message hidding
+'''
+Least Significant Bit method used for Message Hidding 
+It's a prototype project for self understanding purpose
+'''
+import numpy as np  
+import math         
+import matplotlib.pyplot as plt 
 
-import numpy as np  # package for performing martix operations
-import math         # package that has math operaions
-import matplotlib.pyplot as plt # package for reading and plotting the image
-
-# methods
-
-def color_splitter(image):  # function to split into RGB color gray images
+def color_splitter(image):
+    '''
+    split into RGB color gray images
+    '''
     return [image[:,:,0],image[:,:,1],image[:,:,2]]
 
 def check_bits(string): 
-    if len(string)!=8:  # checking whether all the bits are 8-bits if not then add zeros to lhs
+    '''
+    Takes string of bits
+    Checks for it to be of 8-bit length 
+    '''
+    if len(string)!=8:  
         return ((string[::-1]+''.join(['0' for i in range(8-len(string))])))[::-1]
     return string
 
-def changing_bits(num,x):  # this function is used to exchange the bits in image and message and vice versa
+def changing_bits(num,x): 
+    '''
+    Takes pixel value and message bit and makes manipulation
+    '''
     num=check_bits(bin(num).replace('0b',''))    
     temp=num[-1]
     num=int(num[:len(num)-1]+x,2) # after changing convert into decimal number, num[:len(num)-1]+x is in string format
     return num,temp    
 
-def simple_LSB_sourceSide(image,message): # image in np array
+def simple_LSB_sourceSide(image,message): 
+    '''
+    Encoding process
+    Takes image and message in plain-text 
+    Returns Stego-Image
+    '''
     row,column=image.shape
     image=image.tolist()    # converting the 2D matrix to single dimension for easy manipulations 
     if row*column<len(message)*8: # checking size
@@ -47,7 +62,11 @@ def simple_LSB_sourceSide(image,message): # image in np array
     image=np.array(image).reshape(row,column)
     return [image,suppressed_bits] # return image and image bits 
 
-def simple_LSB_destinationSide(image,suppressed_bits):  # apply the same process as above
+def simple_LSB_destinationSide(image,suppressed_bits):
+    '''
+    Decoding process 
+    returns the plain-text
+    '''
     row,column=image.shape
     image=image.tolist()
     res=''   # for storing the final Message
@@ -72,11 +91,15 @@ def simple_LSB_destinationSide(image,suppressed_bits):  # apply the same process
     image=np.array(image).reshape(row,column)
     return [image,message]
 
-# quality measures:-
-
-# mean squared error should be as low as possible
+'''
+Quality measures 
+'''
 
 def mean_squared_error(original_image,steg_image): # arguments in np.array format
+    '''
+    Calculates mean squared error 
+    Mean squared error should be as low as possible
+    '''
     temp=(original_image-steg_image).tolist()  # original and steg images are np array before converting to list
     sum_=0
     for i in range(len(temp)): 
@@ -86,16 +109,23 @@ def mean_squared_error(original_image,steg_image): # arguments in np.array forma
     # return np.mean((original_image-steg_image)**2)
     
 def root_mean_squared_error(original_image,steg_image): 
+    '''
+    Calculates the root mean squared error 
+    '''
     return math.sqrt(mean_squared_error(original_image,steg_image))
 
-# PSNR should be greater than 58 db for best
-
 def peak_signal_to_noise_ratio(mse,max_fluctuation): # max_fluctuation is max value in image
+    '''
+    Calculates peak signal to noise ratio
+    PSNR should be greater than 58db for best 
+    '''
     return '{} dB'.format(float(10*math.log10(pow(max_fluctuation,2)/mse)))
     
-# NCC must be as high as possible 
-    
 def normalized_cross_correlation(original_image,steg_image):  # input in np array
+    '''
+    Calculates the normalized cross correlation 
+    NCC must be as high as possible 
+    '''
     sum_numer=0
     sum_denom=0
     temp=original_image.tolist()
